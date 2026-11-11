@@ -86,16 +86,20 @@ http://localhost:8501
 
 ## Implantação no Streamlit Community Cloud
 
-Para deploy no Streamlit Cloud, configure as variáveis de ambiente no painel do projeto:
+No painel do app, configure os segredos em **Settings > Secrets**:
 
-- `USE_MYSQL`
-- `MYSQL_HOST`
-- `MYSQL_PORT`
-- `MYSQL_DATABASE`
-- `MYSQL_USER`
-- `MYSQL_PASSWORD`
+```toml
+[database]
+host = "host-do-mysql"
+port = 3306
+database = "festa_ifc"
+user = "usuario"
+password = "senha"
+```
 
-Dessa forma, a aplicação usará MySQL em produção e SQLite em desenvolvimento local.
+Quando esse bloco estiver configurado, a aplicação usará MySQL. Localmente, configure `USE_MYSQL=true` e as variáveis `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER` e `MYSQL_PASSWORD` no `.env`. Sem essas configurações, o padrão local continua sendo SQLite.
+
+O MySQL precisa estar hospedado em um servidor acessível pela internet e aceitar conexões do Streamlit Community Cloud. O DBeaver é apenas um cliente para administrar e testar essa conexão; ele não hospeda o banco.
 
 ## Funcionalidades do sistema
 

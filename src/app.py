@@ -1,4 +1,6 @@
 from __future__ import annotations
+from sqlalchemy import text
+from database import engine
 
 import pandas as pd
 import streamlit as st
@@ -51,13 +53,109 @@ init_db()
 
 
 st.set_page_config(page_title="Festa IFC", page_icon="🎉", layout="wide")
+
+st.markdown(
+    """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background-color: #f4f6f8;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #e8edf2;
+        border-right: 1px solid #d1dbe4;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        padding-top: 1.5rem;
+    }
+
+    [data-testid="stAppViewContainer"] h1,
+    [data-testid="stAppViewContainer"] h2,
+    [data-testid="stAppViewContainer"] h3,
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
+        color: #263b4d;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+        color: #586b7a;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] {
+        gap: 0.5rem;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stRadio"] label {
+        padding: 0.6rem 0.75rem;
+        border: 1px solid #d5dee6;
+        border-radius: 0.55rem;
+        background-color: #f4f6f8;
+        color: #3b5062;
+        transition: background-color 150ms ease, border-color 150ms ease;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
+        border-color: #8da4b8;
+        background-color: #e0e8ef;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+        border-color: #58758d;
+        background-color: #dce6ee;
+        box-shadow: inset 3px 0 #b98255;
+        color: #263b4d;
+        font-weight: 600;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:focus-within {
+        outline: 2px solid #58758d;
+        outline-offset: 2px;
+    }
+
+    [data-testid="stSidebar"] hr {
+        border-color: #d1dbe4;
+    }
+
+    [data-testid="stFormSubmitButton"] button {
+        border: 1px solid #314d65;
+        background-color: #3d5d78;
+        color: #ffffff;
+    }
+
+    [data-testid="stFormSubmitButton"] button:hover {
+        border-color: #263b4d;
+        background-color: #263b4d;
+        color: #ffffff;
+    }
+
+    [data-testid="stDataFrame"] {
+        border: 1px solid #d5dee6;
+        border-radius: 0.55rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.title("Gestão da Festa do IFC - Campus Blumenau")
 
 with st.sidebar:
-    st.header("Configuração do banco")
-    st.write("SQLite: usado para testes locais")
-    st.write("MySQL: usado em produção")
-    st.caption("Defina USE_MYSQL=true e as variáveis MYSQL_* para ativar o MySQL.")
+    st.title("Festa IFC")
+    st.caption("Campus Blumenau")
+    st.divider()
+    st.markdown("#### MENU PRINCIPAL")
+    pagina_selecionada = st.radio(
+        "Navegação",
+        ["Alimentos", "Fornecedores", "Trabalhadores", "Preços"],
+        label_visibility="collapsed",
+    )
+    st.divider()
+    with st.expander("Configuração do banco"):
+        st.caption("SQLite · usado para testes locais")
+        st.caption("MySQL · usado em produção")
+        st.info("Defina USE_MYSQL=true e as variáveis MYSQL_* para ativar o MySQL.")
 
 
 def render_food_section():
@@ -258,21 +356,26 @@ def render_price_section():
                 st.rerun()
 
 
-tab_alimentos, tab_fornecedores, tab_trabalhadores, tab_precos = st.tabs([
-    "Alimentos",
-    "Fornecedores",
-    "Trabalhadores",
-    "Preços",
-])
-
-with tab_alimentos:
+if pagina_selecionada == "Alimentos":
     render_food_section()
-
-with tab_fornecedores:
+elif pagina_selecionada == "Fornecedores":
     render_supplier_section()
-
-with tab_trabalhadores:
+elif pagina_selecionada == "Trabalhadores":
     render_worker_section()
-
-with tab_precos:
+else:
     render_price_section()
+database_name = "MySQL" if engine.dialect.name == "mysql" else "SQLite"
+version_query = "SELECT VERSION()" if engine.dialect.name == "mysql" else "SELECT sqlite_version()"
+
+st.title(f"Teste de conexão {database_name}")
+
+try:
+    with engine.connect() as conn:
+        resultado = conn.execute(text(version_query))
+        versao = resultado.scalar()
+
+        st.success(f"Conectado ao {database_name}!")
+        st.write("Versão:", versao)
+
+except Exception as e:
+    st.error(f"Erro na conexão: {e}")
