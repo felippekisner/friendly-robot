@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.venv/
+.uv/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Streamlit
+.streamlit/
+*.db
+*.sqlite3
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Project data
+/data/
