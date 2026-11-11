@@ -86,7 +86,9 @@ http://localhost:8501
 
 ## Implantação no Streamlit Community Cloud
 
-No painel do app, configure os segredos em **Settings > Secrets**:
+1. Envie o código ao GitHub sem incluir `.env` nem `secrets.toml`. Esses arquivos são locais e estão no `.gitignore`.
+2. No Streamlit Community Cloud, crie ou conecte o app ao repositório e selecione `src/app.py` como arquivo principal.
+3. No app, abra **Settings > Secrets** e configure:
 
 ```toml
 [database]
@@ -97,9 +99,11 @@ user = "usuario"
 password = "senha"
 ```
 
-Quando esse bloco estiver configurado, a aplicação usará MySQL. Localmente, configure `USE_MYSQL=true` e as variáveis `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER` e `MYSQL_PASSWORD` no `.env`. Sem essas configurações, o padrão local continua sendo SQLite.
+Salve os Secrets e reinicie o app. A aplicação lê essas credenciais com `st.secrets` e usa MySQL quando elas estiverem configuradas. Não coloque senhas no código, no README, em commits nem em arquivos versionados.
 
-O MySQL precisa estar hospedado em um servidor acessível pela internet e aceitar conexões do Streamlit Community Cloud. O DBeaver é apenas um cliente para administrar e testar essa conexão; ele não hospeda o banco.
+Localmente, você pode continuar usando `.env` com `USE_MYSQL=true` e as variáveis `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER` e `MYSQL_PASSWORD`. Se não houver configuração MySQL, o padrão é SQLite. O `secrets.toml` local também é ignorado pelo Git e não deve ser enviado ao repositório.
+
+O servidor MySQL precisa aceitar conexões externas do Streamlit Community Cloud; configure as regras de rede e as permissões do usuário MySQL no provedor do banco. O DBeaver é apenas um cliente para administrar e testar essa conexão; ele não hospeda o banco.
 
 ## Funcionalidades do sistema
 
